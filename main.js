@@ -1,15 +1,8 @@
-const {app, BrowserWindow, ipcMain} = require("electron")
-const path = require("path")
-const url = require("url")
-const WindowManager = require("./window-manager")
+const Paddy = require("./paddy")
+const {app} = require("electron")
+
+let _paddyInstance = new Paddy()
 
 app.on("ready", () => {
-    let winManager = new WindowManager(800, 600, "Paddy v2", true,
-        url.format({
-            pathname: path.join(__dirname, "index.html"),
-            protocol: "file",
-            slashes: "true"
-        })
-    )
+  _paddyInstance.init()
 })
-
