@@ -49,6 +49,13 @@ body {
         overflow-y: scroll;
         overflow-x: hidden; }
 
+#file-controls-container {
+  position: fixed;
+  bottom: 4px;
+  left: 8px; }
+  #file-controls-container img {
+    width: 24px; }
+
 ::-webkit-scrollbar {
   width: 5px; }
 
@@ -59,3 +66,5 @@ body {
 
 ::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(65, 67, 75, 0.8); }
+
+/*# sourceMappingURL=main.css.map */

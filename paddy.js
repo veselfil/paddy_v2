@@ -3,22 +3,28 @@ const {app, ipcMain} = require("electron")
 const url = require("url")
 const path = require("path")
 const {FileManager, File} = require("./file-manager")
+const {FileManipulationHandler} = require("./file-manipulation-handler")
 
 class Paddy {
-  constructor() {
-    this.fileManager = new FileManager()
-    this.currentFile = new File("untitled")
-  }
+    constructor () {
+        this.fileManipHandler = new FileManipulationHandler(this)
+        this.fileManager = new FileManager()
+        this.currentFile = null
+    }
 
-  init() {
-    let urlParam = url.format({
-      pathname: path.join(__dirname, "index.html"),
-      protocol: "file",
-      slashes: "true"
-    })
+    init () {
+        let urlParam = url.format({
+            pathname: path.join(__dirname, "index.html"),
+            protocol: "file",
+            slashes : "true"
+        })
 
-    this.winManager = new WindowManager(800, 600, "Paddy v2", true, urlParam)
-  }
+        this.winManager = new WindowManager(800, 600, "Paddy v2", true, urlParam)
+    }
+
+    updateTextfield () {
+        this.winManager.sendData("open-file", {"fileContent": this.currentFile.content})
+    }
 }
 
 module.exports = Paddy

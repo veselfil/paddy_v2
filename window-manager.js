@@ -17,7 +17,7 @@ class WindowManager {
      * @param frameless
      * @param defaultURL
      */
-    constructor(width, height, title, frameless, defaultURL) {
+    constructor (width, height, title, frameless, defaultURL) {
         this.width = width
         this.height = height
         this.title = title
@@ -39,17 +39,19 @@ class WindowManager {
     /**
      * Creates a new window and saves it into the global reference field.
      */
-    initWindow() {
+    initWindow () {
         global_WindowReference = new BrowserWindow({
-            width: this.width,
+            width : this.width,
             height: this.height,
-            title: this.title,
-            frame: !this.frameless
+            title : this.title,
+            frame : !this.frameless,
+            show  : false
         })
 
+        global_WindowReference.on("ready-to-show", () => { global_WindowReference.show() })
         global_WindowReference.loadURL(this.defaultURL)
 
-        // destroy the refernce in case the window is closed
+        /* destroy the reference in case the window is closed */
         global_WindowReference.on("closed", () => global_WindowReference = null)
         require("./system-buttons-handling")(global_WindowReference)
     }
@@ -57,8 +59,12 @@ class WindowManager {
     /**
      * @returns Global reference to the Window.
      */
-    getWindow() {
+    getWindow () {
         return global_WindowReference
+    }
+
+    sendData(channel, params) {
+        global_WindowReference.webContents.send(channel, params)
     }
 }
 

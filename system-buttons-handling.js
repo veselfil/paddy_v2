@@ -5,6 +5,8 @@
 const {ipcMain, app, Window} = require("electron")
 
 module.exports = (window) => {
+    let windowMaximized = false
+
     ipcMain.on("quit-application", () => {
         window.close()
     })
@@ -14,6 +16,9 @@ module.exports = (window) => {
     })
 
     ipcMain.on("maximize-application", () => {
-        window.maximize()
+        if (windowMaximized)
+            window.unmaximize()
+        else window.maximize()
+        windowMaximized = !windowMaximized
     })
 }
