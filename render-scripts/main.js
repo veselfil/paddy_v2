@@ -28,6 +28,10 @@ window.onload = () => {
         document.querySelector("#editable-content").innerText = data.fileContent
     })
 
+    document.getElementById("close-file-button").addEventListener("click", (event) => {
+      ipcRenderer.send("close-file")
+    })
+
     /* Handles TAB characters. */
     document.querySelector("#editable-content").addEventListener("keydown", (e) => {
         if (e.keyCode == 9 || e.which == 9) {

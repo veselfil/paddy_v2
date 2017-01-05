@@ -44,6 +44,12 @@ class FileManipulationHandler {
 
             this.paddy.fileManager.exportMarkdown(data.fileContent, resultPath)
         })
+
+        ipcMain.on("close-file", (event) => {
+          this.paddy.currentFile = null
+          this.paddy.updateTextfield()
+          console.log("sumfink")
+        })
     }
 }
 

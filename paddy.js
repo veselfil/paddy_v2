@@ -23,7 +23,9 @@ class Paddy {
     }
 
     updateTextfield () {
-        this.winManager.sendData("open-file", {"fileContent": this.currentFile.content})
+        if(this.currentFile != null)
+          this.winManager.sendData("open-file", {"fileContent": this.currentFile.content})
+        else this.winManager.sendData("open-file", {"fileContent": ""})
     }
 }
 
