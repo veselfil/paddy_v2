@@ -10,6 +10,7 @@ window.onload = () => {
     document.getElementById("green").addEventListener("click", () => ipcRenderer.send("maximize-application"))
 
     let textArea = document.querySelector("#editable-content")
+    let styler = new Styler()
 
     // file manipulations
     document.getElementById("save-file-button").addEventListener("click", () => {
@@ -29,7 +30,7 @@ window.onload = () => {
     })
 
     document.getElementById("close-file-button").addEventListener("click", (event) => {
-      ipcRenderer.send("close-file")
+        ipcRenderer.send("close-file")
     })
 
     /* Handles TAB characters. */
@@ -50,5 +51,17 @@ window.onload = () => {
             sel.removeAllRanges();
             sel.addRange(range);
         }
+    })
+
+    /* Syntax highlighting */
+    // document.querySelector("#editable-content").addEventListener("input", (event) => {
+    //     let styledText = styler.styleText(textArea.innerHTML)
+    //     console.log(styledText)
+    //     textArea.innerHTML = styledText
+    // })
+
+    document.addEventListener("keydown", (event) => {
+        if (event.keyCode == 123)
+            ipcRenderer.send("open-dev-tools");
     })
 }

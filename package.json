@@ -1,8 +1,12 @@
 {
-  "name": "Paddy V2",
+  "name": "paddy-v2",
   "version": "0.0.1",
+  "repository": "https://github.com/veselfil/paddy_v2",
+  "description": "A simple markdown editor.",
+  "license": "MIT License",
   "main": "main.js",
   "dependencies": {
-    "marked": "^0.3.6"
+    "marked": "^0.3.6",
+    "electron": "^1.4.13"
   }
 }

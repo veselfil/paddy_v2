@@ -2,7 +2,7 @@
  * Created by vesel on 12.12.2016.
  */
 
-const {app, BrowserWindow} = require("electron")
+const {app, BrowserWindow, ipcMain} = require("electron")
 
 let global_WindowReference
 
@@ -54,6 +54,11 @@ class WindowManager {
         /* destroy the reference in case the window is closed */
         global_WindowReference.on("closed", () => global_WindowReference = null)
         require("./system-buttons-handling")(global_WindowReference)
+
+        global_WindowReference.openDevTools()
+
+        /* Devtools handler */
+        ipcMain.on("open-dev-tools", () => { global_WindowReference.openDevTools() })
     }
 
     /**
