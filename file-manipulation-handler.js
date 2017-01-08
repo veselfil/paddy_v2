@@ -1,6 +1,6 @@
 const {FileManager, File} = require("./file-manager")
 const {ipcMain, dialog} = require("electron")
-
+const dialogs = require("./dialogs")
 /**
  * Handles file manipulation requests from the renderer process.
  */
@@ -15,6 +15,15 @@ class FileManipulationHandler {
         this.initListeners()
     }
 
+    saveFile (data) {
+        if (this.paddy.currentFile === null) {
+            this.paddy.currentFile = File.save(this.paddy.fileManager, data.fileContent)
+        } else {
+            this.paddy.currentFile.content = data.fileContent
+            this.paddy.fileManager.saveFile(this.paddy.currentFile, true)
+        }
+    }
+
     /**
      * Starts listening on all of the file-manipulation channels.
      */
@@ -25,30 +34,45 @@ class FileManipulationHandler {
         })
 
         ipcMain.on("save-file", (event, data) => {
-            if(this.paddy.currentFile === null) {
-                this.paddy.currentFile = File.save(this.paddy.fileManager, data.fileContent)
-            } else {
-                this.paddy.currentFile.content = data.fileContent
-                this.paddy.fileManager.saveFile(this.paddy.currentFile, true)
+            this.saveFile(data)
+            // goddamn all present null checks. worst fucking mistake i've made in this design.
+            // could have used a special constant but noooo me be to special for that
+            if (this.paddy.currentFile != null)
+                this.paddy.currentFile.modified = false
+            if (data.closeWindow)
+                this.paddy.winManager.closeWindow()
+            if (data.clear) {
+                this.paddy.currentFile = null
+                this.paddy.updateTextfield()
             }
         })
 
         ipcMain.on("export-file", (event, data) => {
             let resultPath = dialog.showSaveDialog({
-                title: "Choose export location",
+                title      : "Choose export location",
                 buttonLabel: "Export",
             })
 
-            if(resultPath == undefined)
+            if (resultPath == undefined)
                 return null
 
             this.paddy.fileManager.exportMarkdown(data.fileContent, resultPath)
         })
 
         ipcMain.on("close-file", (event) => {
-          this.paddy.currentFile = null
-          this.paddy.updateTextfield()
-          console.log("sumfink")
+            if (this.paddy.currentFile.modified) {
+                if (dialogs.showConfirmationDialog("Warning", "Changes have been made to the file. Would you like to save them?"))
+                    this.paddy.winManager.sendData("save-file", {clear: true})
+            }
+            else {
+                this.paddy.currentFile = null
+                this.paddy.updateTextfield()
+            }
+        })
+
+        ipcMain.on("text-modified", (event) => {
+            if (this.paddy.currentFile != null)
+                this.paddy.currentFile.modified = true
         })
     }
 }

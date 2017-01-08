@@ -4,5 +4,5 @@ const {app} = require("electron")
 let _paddyInstance = new Paddy()
 
 app.on("ready", () => {
-  _paddyInstance.init()
+  _paddyInstance.init(app)
 })

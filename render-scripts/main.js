@@ -11,10 +11,16 @@ window.onload = () => {
 
     let textArea = document.querySelector("#editable-content")
     let styler = new Styler()
+    let fileStatusIndicator = document.querySelector("#file-status-indicator")
 
-    // file manipulations
+    const showFileStatus = (upToDate) => {
+        fileStatusIndicator.style.background = upToDate ? "#62f442" : "#f45942"
+    }
+
+     // file manipulations
     document.getElementById("save-file-button").addEventListener("click", () => {
-        ipcRenderer.send("save-file", {"fileContent": textArea.innerText})
+        showFileStatus(true)
+        ipcRenderer.send("save-file", {"fileContent": textArea.innerText, closeWindow: false, clear: false})
     })
 
     document.getElementById("load-file-button").addEventListener("click", () => {
@@ -22,11 +28,16 @@ window.onload = () => {
     })
 
     document.getElementById("export-file-button").addEventListener("click", () => {
-        ipcRenderer.send("export-file", {"fileContent": textArea.innerText})
+        ipcRenderer.send("export-file", {"fileContent": textArea.innerText, closeWindow: false, clear: false})
     })
 
     ipcRenderer.on("open-file", (event, data) => {
         document.querySelector("#editable-content").innerText = data.fileContent
+    })
+
+    ipcRenderer.on("save-file", (event, data) => {
+        showFileStatus(true)
+        ipcRenderer.send("save-file", {"fileContent": textArea.innerText, closeWindow: false, clear: data.clear})
     })
 
     document.getElementById("close-file-button").addEventListener("click", (event) => {
@@ -60,8 +71,19 @@ window.onload = () => {
     //     textArea.innerHTML = styledText
     // })
 
+    document.querySelector("#editable-content").addEventListener("input", (event) => {
+        showFileStatus(false)
+        ipcRenderer.send("text-modified")
+    })
+
     document.addEventListener("keydown", (event) => {
+        console.log("Pressed key: " + event.keyCode)
+        console.log("CTRL: " + event.ctrlKey)
         if (event.keyCode == 123)
-            ipcRenderer.send("open-dev-tools");
+            ipcRenderer.send("open-dev-tools")
+        if (event.keyCode == 83 && (event.ctrlKey)) {
+            showFileStatus(true)
+            ipcRenderer.send("save-file", {"fileContent": textArea.innerText, closeWindow: false, clear: false}) // simply save the file. don't do any other fancy shit.
+        }
     })
 }

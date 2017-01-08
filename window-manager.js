@@ -17,12 +17,13 @@ class WindowManager {
      * @param frameless
      * @param defaultURL
      */
-    constructor (width, height, title, frameless, defaultURL) {
+    constructor (width, height, title, frameless, defaultURL, paddy) {
         this.width = width
         this.height = height
         this.title = title
         this.frameless = frameless
         this.defaultURL = defaultURL
+        this.paddy = paddy
 
         this.initWindow()
         app.on("window-all-closed", () => {
@@ -48,17 +49,31 @@ class WindowManager {
             show  : false
         })
 
-        global_WindowReference.on("ready-to-show", () => { global_WindowReference.show() })
+        global_WindowReference.on("ready-to-show", () => {
+            global_WindowReference.show()
+        })
         global_WindowReference.loadURL(this.defaultURL)
 
-        /* destroy the reference in case the window is closed */
-        global_WindowReference.on("closed", () => global_WindowReference = null)
+        /* Call the window close callback if not null. If it returns true, the window can be closed safely. */
+        global_WindowReference.on("close", (event) => {
+            if (!this.paddy.onWindowClose())
+                event.preventDefault()
+        })
+
+        global_WindowReference.on("closed", () => {
+            global_WindowReference = null
+        })
+
+        /*
+         * Registers all of the IPC listeners for system buttons (close, minimize and maximize)
+         * on their respective channels.
+         */
         require("./system-buttons-handling")(global_WindowReference)
 
-        global_WindowReference.openDevTools()
-
         /* Devtools handler */
-        ipcMain.on("open-dev-tools", () => { global_WindowReference.openDevTools() })
+        ipcMain.on("open-dev-tools", () => {
+            global_WindowReference.openDevTools()
+        })
     }
 
     /**
@@ -68,8 +83,19 @@ class WindowManager {
         return global_WindowReference
     }
 
-    sendData(channel, params) {
-        global_WindowReference.webContents.send(channel, params)
+    /**
+     * Send an object using the specified IPC channel.
+     * @param channel The channel on which to send the object.
+     * @param params The object to send on the channel.
+     */
+    sendData (channel, params = null) {
+        if(params == null)
+            global_WindowReference.webContents.send(channel)
+        else global_WindowReference.webContents.send(channel, params)
+    }
+
+    closeWindow () {
+        global_WindowReference.close();
     }
 }
 

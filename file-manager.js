@@ -2,7 +2,7 @@ const fs = require("fs")
 const marked = require("marked")
 const {dialog} = require("electron")
 
-String.prototype.replaceAll = function(search, replace) {
+String.prototype.replaceAll = function (search, replace) {
     if (replace === undefined) {
         return this.toString();
     }
@@ -14,6 +14,7 @@ class File {
         this.fileName = filename
         this.path = ""
         this.content = ""
+        this.modified = false
     }
 
     /**
@@ -99,14 +100,18 @@ class FileManager {
         let remove = ["<div>"]
         let replaceWithNewline = ["</div>", "<br>", "<br/>"]
 
-        remove.forEach((item) => { htmlContent = htmlContent.replaceAll(item, "") })
-        replaceWithNewline.forEach((item) => { htmlContent = htmlContent.replaceAll(item, "\n") })
+        remove.forEach((item) => {
+            htmlContent = htmlContent.replaceAll(item, "")
+        })
+        replaceWithNewline.forEach((item) => {
+            htmlContent = htmlContent.replaceAll(item, "\n")
+        })
 
         console.log(htmlContent)
         return htmlContent
     }
 
-    exportMarkdown(data, path) {
+    exportMarkdown (data, path) {
         let htmlTemplate = fs.readFileSync("./export-template.html").toString()
         let exportData = htmlTemplate.replace("{% MARKDOWN_CONTENT %}", marked(data))
 
@@ -115,7 +120,6 @@ class FileManager {
         fs.writeFileSync(path, exportData)
     }
 }
-
 
 
 module.exports = {
